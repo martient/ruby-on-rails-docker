@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  front:
+    driver: bridge
+  back:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  gems:
+    driver: local
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    command: rails server
+    environment:
+      DATABASE_URL: postgres://postgres@db
+    networks:
+      - back
+      - front
+    links:
+      - db
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - back
